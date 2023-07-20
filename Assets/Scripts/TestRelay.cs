@@ -18,39 +18,40 @@ public class TestRelay : MonoBehaviour
     [SerializeField] TMP_InputField joinCodeInput;
 
 
-    private void Awake() 
-    {
-        createRoomBtn.onClick.AddListener(() => 
-        {
-            CreateRelay();
-        });
+    // private void Awake() 
+    // {
+    //     createRoomBtn.onClick.AddListener(() => 
+    //     {
+    //         CreateRelay();
+    //     });
 
-        joinRoomBtn.onClick.AddListener(() => 
-        {
-            JoinRelay(joinCodeInput.text);
-        });
-    }
+    //     joinRoomBtn.onClick.AddListener(() => 
+    //     {
+    //         JoinRelay(joinCodeInput.text);
+    //     });
+    // }
 
-    private async void Start()
-    {
-        await UnityServices.InitializeAsync();
+    // private async void Start()
+    // {
+    //     await UnityServices.InitializeAsync();
 
-        AuthenticationService.Instance.SignedIn += () => {
-            Debug.Log("Sign in " + AuthenticationService.Instance.PlayerId);
-        };
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
-    }
+    //     AuthenticationService.Instance.SignedIn += () => {
+    //         Debug.Log("Sign in " + AuthenticationService.Instance.PlayerId);
+    //     };
+    //     await AuthenticationService.Instance.SignInAnonymouslyAsync();
+    // }
 
     
-    private void Update() {
-        if (Input.GetKeyDown(KeyCode.C)) CreateRelay();
-    }
+    // private void Update() {
+    //     if (Input.GetKeyDown(KeyCode.C)) CreateRelay();
+    // }
 
     private async void CreateRelay() 
     {
         try 
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
+            int maxPlayers = 4;
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
