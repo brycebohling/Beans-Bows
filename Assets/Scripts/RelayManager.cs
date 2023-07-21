@@ -10,43 +10,19 @@ using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using UnityEngine.UI;
 using TMPro;
+using System.Threading.Tasks;
 
-public class TestRelay : MonoBehaviour
+public class RelayManager : MonoBehaviour
 {
-    [SerializeField] Button createRoomBtn;
-    [SerializeField] Button joinRoomBtn;
-    [SerializeField] TMP_InputField joinCodeInput;
+    public static RelayManager Instance { get; private set; }
 
 
-    // private void Awake() 
-    // {
-    //     createRoomBtn.onClick.AddListener(() => 
-    //     {
-    //         CreateRelay();
-    //     });
+    private void Awake() 
+    {
+        Instance = this;
+    }
 
-    //     joinRoomBtn.onClick.AddListener(() => 
-    //     {
-    //         JoinRelay(joinCodeInput.text);
-    //     });
-    // }
-
-    // private async void Start()
-    // {
-    //     await UnityServices.InitializeAsync();
-
-    //     AuthenticationService.Instance.SignedIn += () => {
-    //         Debug.Log("Sign in " + AuthenticationService.Instance.PlayerId);
-    //     };
-    //     await AuthenticationService.Instance.SignInAnonymouslyAsync();
-    // }
-
-    
-    // private void Update() {
-    //     if (Input.GetKeyDown(KeyCode.C)) CreateRelay();
-    // }
-
-    private async void CreateRelay() 
+    public async Task<string> CreateRelay() 
     {
         try 
         {
@@ -54,8 +30,6 @@ public class TestRelay : MonoBehaviour
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
-            Debug.Log(joinCode);
         
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
                 allocation.RelayServer.IpV4,
@@ -67,18 +41,21 @@ public class TestRelay : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
 
+            return joinCode;
+
         } catch (RelayServiceException e)
         {
             Debug.Log(e);
+            return null;
         }
     }
 
-    private async void JoinRelay(string _joinCode)
+    public async void JoinRelay(string joinCode)
     {
         try
         {
-            Debug.Log("Joining relay with " + _joinCode);
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(_joinCode);
+            Debug.Log("Joining relay with " + joinCode);
+            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
                 joinAllocation.RelayServer.IpV4,
