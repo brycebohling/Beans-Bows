@@ -39,32 +39,32 @@ public class LobbyCreateUI : MonoBehaviour {
             Hide();
         });
 
-        // lobbyNameButton.onClick.AddListener(() => {
-        //     UI_InputWindow.Show_Static("Lobby Name", lobbyName, "abcdefghijklmnopqrstuvxywzABCDEFGHIJKLMNOPQRSTUVXYWZ .,-", 20,
-        //     () => {
-        //         // Cancel
-        //     },
-        //     (string lobbyName) => {
-        //         this.lobbyName = lobbyName;
-        //         UpdateText();
-        //     });
-        // });
+        lobbyNameButton.onClick.AddListener(() => {
+            UI_InputWindow.Show_Static("Lobby Name", lobbyName, "abcdefghijklmnopqrstuvxywzABCDEFGHIJKLMNOPQRSTUVXYWZ .,-", 20,
+            () => {
+                // Cancel
+            },
+            (string lobbyName) => {
+                this.lobbyName = lobbyName;
+                UpdateText();
+            });
+        });
 
         publicPrivateButton.onClick.AddListener(() => {
             isPrivate = !isPrivate;
             UpdateText();
         });
 
-        // maxPlayersButton.onClick.AddListener(() => {
-        //     UI_InputWindow.Show_Static("Max Players", maxPlayers,
-        //     () => {
-        //         // Cancel
-        //     },
-        //     (int maxPlayers) => {
-        //         this.maxPlayers = maxPlayers;
-        //         UpdateText();
-        //     });
-        // });
+        maxPlayersButton.onClick.AddListener(() => {
+            UI_InputWindow.Show_Static("Max Players", maxPlayers,
+            () => {
+                // Cancel
+            },
+            (int maxPlayers) => {
+                this.maxPlayers = maxPlayers;
+                UpdateText();
+            });
+        });
 
         gameModeButton.onClick.AddListener(() => {
             switch (gameMode) {

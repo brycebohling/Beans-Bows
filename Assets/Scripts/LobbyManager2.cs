@@ -101,7 +101,7 @@ public class LobbyManager2 : MonoBehaviour
                 joinedLobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
 
                 OnJoinedLobbyUpdate?.Invoke(this, new LobbyEventArgs { lobby = joinedLobby });
-                
+
                 if (!IsPlayerStillInLobby())
                 {
                     Debug.Log("Kicked from Lobby!");
@@ -119,33 +119,28 @@ public class LobbyManager2 : MonoBehaviour
         }
     }
 
-    public async void CreateLobby()
+    public async void CreateLobby(string lobbyName, int maxPlayers, GameMode gameMode, bool isPrivate) 
     {
-        try
+        Player player = GetPlayer();
+
+        CreateLobbyOptions options = new CreateLobbyOptions 
         {
-            string lobbyName = "MyLobby";
-            int maxPlayers = 4;
-            CreateLobbyOptions createLobbyOptions = new CreateLobbyOptions {
-                IsPrivate = false,
-                Player = GetPlayer(),
-                Data = new Dictionary<string, DataObject> {
-                    { KEY_GAME_MODE, new DataObject(DataObject.VisibilityOptions.Public, "TeamDeathMatch")},
-                    { KEY_START_GAME_CODE, new DataObject(DataObject.VisibilityOptions.Member, "0")},
-                }
-            };
+            Player = player,
+            IsPrivate = isPrivate,
+            Data = new Dictionary<string, DataObject> 
+            {
+                { KEY_GAME_MODE, new DataObject(DataObject.VisibilityOptions.Public, gameMode.ToString()) },
+                { KEY_START_GAME_CODE, new DataObject(DataObject.VisibilityOptions.Member, "0") }
+            }
+        };
 
-            Lobby lobby = await Lobbies.Instance.CreateLobbyAsync(lobbyName, maxPlayers, createLobbyOptions);
+        Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
 
-            joinedLobby = lobby;
+        joinedLobby = lobby;
 
-            OnJoinedLobby?.Invoke(this, new LobbyEventArgs { lobby = lobby });
+        OnJoinedLobby?.Invoke(this, new LobbyEventArgs { lobby = lobby });
 
-            Debug.Log("Joined Lobby: " + joinedLobby.Name);
-
-        } catch (LobbyServiceException e)
-        {
-            Debug.Log(e);
-        }
+        Debug.Log("Created Lobby " + lobby.Name);
     }
 
     private async void ListLobbies()

@@ -74,8 +74,7 @@ public class LobbyListUI2 : MonoBehaviour {
 
     private void CreateLobbyBtnClicked() 
     {
-        // LobbyCreateUI2.Instance.Show();
-        LobbyManager2.Instance.CreateLobby();
+        LobbyCreateUI2.Instance.Show();
     }
 
     private void Hide() 
