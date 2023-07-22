@@ -1,84 +1,84 @@
-// using System;
-// using System.Collections;
-// using System.Collections.Generic;
-// using Unity.Services.Lobbies.Models;
-// using UnityEngine;
-// using UnityEngine.UI;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Services.Lobbies.Models;
+using UnityEngine;
+using UnityEngine.UI;
 
-// public class LobbyListUI : MonoBehaviour {
-
-
-//     public static LobbyListUI Instance { get; private set; }
+public class LobbyListUI : MonoBehaviour {
 
 
-
-//     [SerializeField] private Transform lobbySingleTemplate;
-//     [SerializeField] private Transform container;
-//     [SerializeField] private Button refreshButton;
-//     [SerializeField] private Button createLobbyButton;
+    public static LobbyListUI Instance { get; private set; }
 
 
-//     private void Awake() {
-//         Instance = this;
 
-//         lobbySingleTemplate.gameObject.SetActive(false);
+    [SerializeField] private Transform lobbySingleTemplate;
+    [SerializeField] private Transform container;
+    [SerializeField] private Button refreshButton;
+    [SerializeField] private Button createLobbyButton;
 
-//         refreshButton.onClick.AddListener(RefreshButtonClick);
-//         createLobbyButton.onClick.AddListener(CreateLobbyButtonClick);
-//     }
 
-//     private void Start() {
-//         LobbyManager.Instance.OnLobbyListChanged += LobbyManager_OnLobbyListChanged;
-//         LobbyManager.Instance.OnJoinedLobby += LobbyManager_OnJoinedLobby;
-//         LobbyManager.Instance.OnLeftLobby += LobbyManager_OnLeftLobby;
-//         LobbyManager.Instance.OnKickedFromLobby += LobbyManager_OnKickedFromLobby;
-//     }
+    private void Awake() {
+        Instance = this;
 
-//     private void LobbyManager_OnKickedFromLobby(object sender, LobbyManager.LobbyEventArgs e) {
-//         Show();
-//     }
+        lobbySingleTemplate.gameObject.SetActive(false);
 
-//     private void LobbyManager_OnLeftLobby(object sender, EventArgs e) {
-//         Show();
-//     }
+        refreshButton.onClick.AddListener(RefreshButtonClick);
+        createLobbyButton.onClick.AddListener(CreateLobbyButtonClick);
+    }
 
-//     private void LobbyManager_OnJoinedLobby(object sender, LobbyManager.LobbyEventArgs e) {
-//         Hide();
-//     }
+    private void Start() {
+        LobbyManager.Instance.OnLobbyListChanged += LobbyManager_OnLobbyListChanged;
+        LobbyManager.Instance.OnJoinedLobby += LobbyManager_OnJoinedLobby;
+        LobbyManager.Instance.OnLeftLobby += LobbyManager_OnLeftLobby;
+        LobbyManager.Instance.OnKickedFromLobby += LobbyManager_OnKickedFromLobby;
+    }
 
-//     private void LobbyManager_OnLobbyListChanged(object sender, LobbyManager.OnLobbyListChangedEventArgs e) {
-//         UpdateLobbyList(e.lobbyList);
-//     }
+    private void LobbyManager_OnKickedFromLobby(object sender, LobbyManager.LobbyEventArgs e) {
+        Show();
+    }
 
-//     private void UpdateLobbyList(List<Lobby> lobbyList) {
-//         foreach (Transform child in container) {
-//             if (child == lobbySingleTemplate) continue;
+    private void LobbyManager_OnLeftLobby(object sender, EventArgs e) {
+        Show();
+    }
 
-//             Destroy(child.gameObject);
-//         }
+    private void LobbyManager_OnJoinedLobby(object sender, LobbyManager.LobbyEventArgs e) {
+        Hide();
+    }
 
-//         foreach (Lobby lobby in lobbyList) {
-//             Transform lobbySingleTransform = Instantiate(lobbySingleTemplate, container);
-//             lobbySingleTransform.gameObject.SetActive(true);
-//             LobbyListSingleUI lobbyListSingleUI = lobbySingleTransform.GetComponent<LobbyListSingleUI>();
-//             lobbyListSingleUI.UpdateLobby(lobby);
-//         }
-//     }
+    private void LobbyManager_OnLobbyListChanged(object sender, LobbyManager.OnLobbyListChangedEventArgs e) {
+        UpdateLobbyList(e.lobbyList);
+    }
 
-//     private void RefreshButtonClick() {
-//         LobbyManager.Instance.RefreshLobbyList();
-//     }
+    private void UpdateLobbyList(List<Lobby> lobbyList) {
+        foreach (Transform child in container) {
+            if (child == lobbySingleTemplate) continue;
 
-//     private void CreateLobbyButtonClick() {
-//         LobbyCreateUI.Instance.Show();
-//     }
+            Destroy(child.gameObject);
+        }
 
-//     private void Hide() {
-//         gameObject.SetActive(false);
-//     }
+        foreach (Lobby lobby in lobbyList) {
+            Transform lobbySingleTransform = Instantiate(lobbySingleTemplate, container);
+            lobbySingleTransform.gameObject.SetActive(true);
+            LobbyListSingleUI lobbyListSingleUI = lobbySingleTransform.GetComponent<LobbyListSingleUI>();
+            lobbyListSingleUI.UpdateLobby(lobby);
+        }
+    }
 
-//     private void Show() {
-//         gameObject.SetActive(true);
-//     }
+    private void RefreshButtonClick() {
+        LobbyManager.Instance.RefreshLobbyList();
+    }
 
-// }
+    private void CreateLobbyButtonClick() {
+        // LobbyCreateUI.Instance.Show();
+    }
+
+    private void Hide() {
+        gameObject.SetActive(false);
+    }
+
+    private void Show() {
+        gameObject.SetActive(true);
+    }
+
+}

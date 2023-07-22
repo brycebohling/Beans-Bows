@@ -48,6 +48,8 @@ public class RelayManager : MonoBehaviour
             Debug.Log(e);
             return null;
         }
+        
+
     }
 
     public async void JoinRelay(string joinCode)
