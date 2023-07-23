@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class LobbyListUI2 : MonoBehaviour {
 
@@ -12,9 +13,12 @@ public class LobbyListUI2 : MonoBehaviour {
 
     [SerializeField] Transform lobbyListContainer;
     [SerializeField] Transform lobbySingleTemplate;
-    [SerializeField] Button refreshBtn;
     [SerializeField] Button createLobbyBtn;
     [SerializeField] Button joinWithCodeBtn;
+    [SerializeField] TMP_InputField joinCodeInput;
+
+    float lobbyListStartY = 220;
+    float lobbyListOffsetY = 120;
 
 
     private void Awake() 
@@ -23,8 +27,11 @@ public class LobbyListUI2 : MonoBehaviour {
 
         lobbySingleTemplate.gameObject.SetActive(false);
 
-        refreshBtn.onClick.AddListener(RefreshButtonClicked);
         createLobbyBtn.onClick.AddListener(CreateLobbyBtnClicked);
+        joinWithCodeBtn.onClick.AddListener(() => 
+        {
+            LobbyManager2.Instance.JoinLobbyWithCode(joinCodeInput.text);
+        });
     }
 
     private void Start() {
@@ -58,18 +65,16 @@ public class LobbyListUI2 : MonoBehaviour {
             Destroy(child.gameObject);
         }
 
+        int i = 0;
         foreach (Lobby lobby in lobbyList) 
         {
             Transform lobbyTempleteTransform = Instantiate(lobbySingleTemplate, lobbyListContainer);
+            lobbyTempleteTransform.localPosition = new Vector2(0, lobbyListStartY - lobbyListOffsetY * i);
             lobbyTempleteTransform.gameObject.SetActive(true);
             LobbyListSingleUI2 lobbyListSingleUI = lobbyTempleteTransform.GetComponent<LobbyListSingleUI2>();
             lobbyListSingleUI.UpdateLobby(lobby);
+            i++;
         }
-    }
-
-    private void RefreshButtonClicked() 
-    {
-        LobbyManager2.Instance.RefreshLobbyList();
     }
 
     private void CreateLobbyBtnClicked() 

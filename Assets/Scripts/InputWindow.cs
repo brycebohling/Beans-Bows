@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UnityEngine.EventSystems;
 
 public class InputWindow : MonoBehaviour
 {
@@ -59,7 +60,6 @@ public class InputWindow : MonoBehaviour
             Hide();
             onCancel();
         });
-
     }
 
     private char ValidateChar(string validCharacters, char addedChar) {
@@ -77,18 +77,18 @@ public class InputWindow : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public static void ShowString_Static(string titleString, string inputString, string validCharacters, int characterLimit, Action onCancel, Action<string> onOk) {
-        instance.Show(titleString, inputString, validCharacters, characterLimit, onCancel, onOk);
+    public static void ShowString_Static(string titleString, string inputString, string validCharacters, int characterLimit, Action onCancel, Action<string> onSubmit) {
+        instance.Show(titleString, inputString, validCharacters, characterLimit, onCancel, onSubmit);
     }
 
-    public static void ShowInt_Static(string titleString, int defaultInt, Action onCancel, Action<int> onOk) {
+    public static void ShowInt_Static(string titleString, int defaultInt, Action onCancel, Action<int> onSubmit) {
         instance.Show(titleString, defaultInt.ToString(), "0123456789-", 20, onCancel, 
             (string inputText) => {
                 // Try to Parse input string
                 if (int.TryParse(inputText, out int _i)) {
-                    onOk(_i);
+                    onSubmit(_i);
                 } else {
-                    onOk(defaultInt);
+                    onSubmit(defaultInt);
                 }
             }
         );

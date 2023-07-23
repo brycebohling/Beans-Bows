@@ -9,7 +9,7 @@ public class LobbyCreateUI2 : MonoBehaviour {
 
     public static LobbyCreateUI2 Instance { get; private set; }
 
-
+    [SerializeField] Button backBtn;
     [SerializeField] Button createBtn;
     [SerializeField] Button lobbyNameBtn;
     [SerializeField] Button maxPlayersBtn;
@@ -20,7 +20,6 @@ public class LobbyCreateUI2 : MonoBehaviour {
     [SerializeField] TextMeshProUGUI gameModeText;
     [SerializeField] TextMeshProUGUI publicPrivateText;
 
-
     string lobbyName;
     bool isPrivate;
     int maxPlayers;
@@ -29,45 +28,60 @@ public class LobbyCreateUI2 : MonoBehaviour {
     private void Awake() {
         Instance = this;
 
-        createBtn.onClick.AddListener(() => {
-            LobbyManager2.Instance.CreateLobby(
-                lobbyName,
-                maxPlayers,
-                gameMode,
-                isPrivate
-            );
+        backBtn.onClick.AddListener(Hide);
+
+        createBtn.onClick.AddListener(() => 
+        {
+            LobbyManager2.Instance.CreateLobby(lobbyName, maxPlayers, gameMode, isPrivate);
             Hide();
         });
 
-        lobbyNameBtn.onClick.AddListener(() => {
+        lobbyNameBtn.onClick.AddListener(() => 
+        {
+            InputBlocker.Show_Static();
             InputWindow.ShowString_Static("Lobby Name", lobbyName, "abcdefghijklmnopqrstuvxywzABCDEFGHIJKLMNOPQRSTUVXYWZ .,-", 20,
-            () => {
+            () => 
+            {
                 // Cancel
+                InputBlocker.Hide_Static();
             },
-            (string lobbyName) => {
+            (string lobbyName) => 
+            {
+                // submit
+                InputBlocker.Hide_Static();
                 this.lobbyName = lobbyName;
                 UpdateText();
             });
         });
 
-        publicPrivateBtn.onClick.AddListener(() => {
+        publicPrivateBtn.onClick.AddListener(() => 
+        {
             isPrivate = !isPrivate;
             UpdateText();
         });
 
-        maxPlayersBtn.onClick.AddListener(() => {
+        maxPlayersBtn.onClick.AddListener(() => 
+        {
+            InputBlocker.Show_Static();
             InputWindow.ShowInt_Static("Max Players", maxPlayers,
-            () => {
+            () => 
+            {
                 // Cancel
+                InputBlocker.Hide_Static();
             },
-            (int maxPlayers) => {
+            (int maxPlayers) => 
+            {
+                // Submit
+                InputBlocker.Hide_Static();
                 this.maxPlayers = maxPlayers;
                 UpdateText();
             });
         });
 
-        gameModeBtn.onClick.AddListener(() => {
-            switch (gameMode) {
+        gameModeBtn.onClick.AddListener(() => 
+        {
+            switch (gameMode) 
+            {
                 default:
                 case LobbyManager2.GameMode.DeathMatch:
                     gameMode = LobbyManager2.GameMode.TeamDeathMatch;
@@ -82,7 +96,8 @@ public class LobbyCreateUI2 : MonoBehaviour {
         Hide();
     }
 
-    private void UpdateText() {
+    private void UpdateText() 
+    {
         Debug.Log(lobbyName);
         Debug.Log(maxPlayers);
         lobbyNameText.text = lobbyName;
@@ -91,11 +106,13 @@ public class LobbyCreateUI2 : MonoBehaviour {
         gameModeText.text = gameMode.ToString();
     }
 
-    private void Hide() {
+    private void Hide() 
+    {
         gameObject.SetActive(false);
     }
 
-    public void Show() {
+    public void Show() 
+    {
         gameObject.SetActive(true);
 
         lobbyName = "My Lobby";

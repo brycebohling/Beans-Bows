@@ -37,13 +37,17 @@ public class LobbyManager2 : MonoBehaviour
         TeamDeathMatch
     } 
 
+    public const string KEY_START_GAME_CODE = "0";
+    public const string KEY_GAME_MODE = "GameMode";
+    public const string KEY_PLAYER_NAME = "PlayerName";
+
     Lobby joinedLobby;
     float heartBeatTimer;
     float lobbyPollTimer;
+    float lobbyListRefreshTimerMax = 3f;
+    float lobbyListRefreshTimer = 3;
     string playerName;
-    const string KEY_START_GAME_CODE = "0";
-    const string KEY_GAME_MODE = "GameMode";
-
+    
 
     private void Awake() 
     {
@@ -104,17 +108,22 @@ public class LobbyManager2 : MonoBehaviour
 
                 if (!IsPlayerStillInLobby())
                 {
-                    Debug.Log("Kicked from Lobby!");
-
                     OnKickedFromLobby?.Invoke(this, new LobbyEventArgs { lobby = joinedLobby });
 
                     joinedLobby = null;
-                }
 
-                if (joinedLobby.Data[KEY_START_GAME_CODE].Value != "0" && !IsLobbyHost())
+                } else if (joinedLobby.Data[KEY_START_GAME_CODE].Value != "0" && !IsLobbyHost())
                 {
                     JoinGame();
                 }
+            }
+        } else
+        {
+            lobbyListRefreshTimer -= Time.deltaTime;
+            if (lobbyListRefreshTimer < 0)
+            {
+                RefreshLobbyList();
+                lobbyListRefreshTimer = lobbyListRefreshTimerMax;
             }
         }
     }
@@ -139,39 +148,9 @@ public class LobbyManager2 : MonoBehaviour
         joinedLobby = lobby;
 
         OnJoinedLobby?.Invoke(this, new LobbyEventArgs { lobby = lobby });
-
-        Debug.Log("Created Lobby " + lobby.Name);
     }
 
-    private async void ListLobbies()
-    {
-        try
-        {
-            QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions {
-                Count = 25,
-                Filters = new List<QueryFilter> {
-                    new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
-                },
-                Order = new List<QueryOrder> {
-                    new QueryOrder(false, QueryOrder.FieldOptions.Created)
-                }
-            };
-
-            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync(queryLobbiesOptions);
-
-            Debug.Log("Lobbies found: " + queryResponse.Results.Count);
-            foreach (Lobby _lobby in queryResponse.Results)
-            {
-                Debug.Log(_lobby.Name + " " + _lobby.MaxPlayers + " " + _lobby.Data[KEY_GAME_MODE].Value);
-            }
-
-        } catch (LobbyServiceException e)
-        {
-            Debug.Log(e);
-        }
-    }
-
-    private async void JoinLobbyByCode(string lobbyCode)
+    public async void JoinLobbyWithCode(string lobbyCode)
     {
         try
         {
@@ -183,8 +162,6 @@ public class LobbyManager2 : MonoBehaviour
             Lobby lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(lobbyCode, joinLobbyByCodeOptions);
 
             joinedLobby = lobby;
-
-            Debug.Log("Joined lobby with code: " + lobbyCode);
 
             OnJoinedLobby?.Invoke(this, new LobbyEventArgs { lobby = lobby });
 
@@ -211,7 +188,7 @@ public class LobbyManager2 : MonoBehaviour
         return new Player {
             Data = new Dictionary<string, PlayerDataObject> 
             {
-                { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName)}
+                { KEY_PLAYER_NAME, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName)}
             }
         };
     } 
@@ -225,64 +202,50 @@ public class LobbyManager2 : MonoBehaviour
         }
     }
 
-    public async void UpdateLobbyGameMode(GameMode gameMode) 
-    {
-        try 
-        {
-            Debug.Log("UpdateLobbyGameMode " + gameMode);
-            
-            Lobby lobby = await Lobbies.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions {
-                Data = new Dictionary<string, DataObject> 
-                {
-                    { KEY_GAME_MODE, new DataObject(DataObject.VisibilityOptions.Public, gameMode.ToString()) }
-                }
-            });
-
-            joinedLobby = lobby;
-
-            OnLobbyGameModeChanged?.Invoke(this, new LobbyEventArgs { lobby = joinedLobby });
-
-        } catch (LobbyServiceException e) 
-        {
-            Debug.Log(e);
-        }
-    }
-
     public async void RefreshLobbyList() 
     {
-        try 
+        if (lobbyListRefreshTimer < 0f)
         {
-            QueryLobbiesOptions options = new QueryLobbiesOptions();
-            options.Count = 25;
-
-            // Filter for open lobbies only
-            options.Filters = new List<QueryFilter> 
+            try 
             {
-                new QueryFilter(
-                    field: QueryFilter.FieldOptions.AvailableSlots,
-                    op: QueryFilter.OpOptions.GT,
-                    value: "0")
-            };
+                QueryLobbiesOptions options = new QueryLobbiesOptions();
+                options.Count = 25;
 
-            // Order by newest lobbies first
-            options.Order = new List<QueryOrder> 
+                // Filter for open lobbies only
+                options.Filters = new List<QueryFilter> 
+                {
+                    new QueryFilter(
+                        field: QueryFilter.FieldOptions.AvailableSlots,
+                        op: QueryFilter.OpOptions.GT,
+                        value: "0")
+                };
+
+                // Order by newest lobbies first
+                options.Order = new List<QueryOrder> 
+                {
+                    new QueryOrder(
+                        asc: false,
+                        field: QueryOrder.FieldOptions.Created)
+                };
+
+                QueryResponse lobbyListQueryResponse = await Lobbies.Instance.QueryLobbiesAsync();
+                
+                OnLobbyListChanged?.Invoke(this, new OnLobbyListChangedEventArgs { lobbyList = lobbyListQueryResponse.Results });
+
+            } catch (LobbyServiceException e) 
             {
-                new QueryOrder(
-                    asc: false,
-                    field: QueryOrder.FieldOptions.Created)
-            };
+                Debug.Log(e);
+            }
 
-            QueryResponse lobbyListQueryResponse = await Lobbies.Instance.QueryLobbiesAsync();
-            
-            OnLobbyListChanged?.Invoke(this, new OnLobbyListChangedEventArgs { lobbyList = lobbyListQueryResponse.Results });
-
-        } catch (LobbyServiceException e) 
-        {
-            Debug.Log(e);
         }
     }
 
-    private bool IsLobbyHost()
+    public Lobby GetJoinedLobby() 
+    {
+        return joinedLobby;
+    }
+
+    public bool IsLobbyHost()
     {
         return joinedLobby != null && joinedLobby.HostId == AuthenticationService.Instance.PlayerId;
     }
@@ -295,6 +258,7 @@ public class LobbyManager2 : MonoBehaviour
             {
                 if (player.Id == AuthenticationService.Instance.PlayerId) 
                 {
+                    Debug.Log("Morning");
                     return true;
                 }
             }
@@ -319,13 +283,13 @@ public class LobbyManager2 : MonoBehaviour
         }
     }
 
-    private async void KickPlayer(string playerID)
+    public async void KickPlayer(string playerId)
     {
         if (IsLobbyHost())
         {
             try
             {
-                await Lobbies.Instance.RemovePlayerAsync(joinedLobby.Id, playerID);
+                await Lobbies.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
 
                 Debug.Log("Left lobby");
             } catch (LobbyServiceException e)
@@ -333,9 +297,8 @@ public class LobbyManager2 : MonoBehaviour
                 Debug.Log(e);
             }
         }
-        
     }
-
+    
     public async void LeaveLobby() 
     {
         if (joinedLobby != null) 
@@ -345,6 +308,8 @@ public class LobbyManager2 : MonoBehaviour
                 await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
 
                 joinedLobby = null;
+
+                OnLeftLobby?.Invoke(this, EventArgs.Empty);
 
             } catch (LobbyServiceException e) 
             {
