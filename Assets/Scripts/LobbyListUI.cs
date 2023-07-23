@@ -6,10 +6,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class LobbyListUI2 : MonoBehaviour {
+public class LobbyListUI : MonoBehaviour {
 
 
-    public static LobbyListUI2 Instance { get; private set; }
+    public static LobbyListUI Instance { get; private set; }
 
     [SerializeField] Transform lobbyListContainer;
     [SerializeField] Transform lobbySingleTemplate;
@@ -30,18 +30,18 @@ public class LobbyListUI2 : MonoBehaviour {
         createLobbyBtn.onClick.AddListener(CreateLobbyBtnClicked);
         joinWithCodeBtn.onClick.AddListener(() => 
         {
-            LobbyManager2.Instance.JoinLobbyWithCode(joinCodeInput.text);
+            LobbyManager.Instance.JoinLobbyWithCode(joinCodeInput.text);
         });
     }
 
     private void Start() {
-        LobbyManager2.Instance.OnLobbyListChanged += LobbyManager_OnLobbyListChanged;
-        LobbyManager2.Instance.OnJoinedLobby += LobbyManager_OnJoinedLobby;
-        LobbyManager2.Instance.OnLeftLobby += LobbyManager_OnLeftLobby;
-        LobbyManager2.Instance.OnKickedFromLobby += LobbyManager_OnKickedFromLobby;
+        LobbyManager.Instance.OnLobbyListChanged += LobbyManager_OnLobbyListChanged;
+        LobbyManager.Instance.OnJoinedLobby += LobbyManager_OnJoinedLobby;
+        LobbyManager.Instance.OnLeftLobby += LobbyManager_OnLeftLobby;
+        LobbyManager.Instance.OnKickedFromLobby += LobbyManager_OnKickedFromLobby;
     }
 
-    private void LobbyManager_OnKickedFromLobby(object sender, LobbyManager2.LobbyEventArgs e) {
+    private void LobbyManager_OnKickedFromLobby(object sender, LobbyManager.LobbyEventArgs e) {
         Show();
     }
 
@@ -49,11 +49,11 @@ public class LobbyListUI2 : MonoBehaviour {
         Show();
     }
 
-    private void LobbyManager_OnJoinedLobby(object sender, LobbyManager2.LobbyEventArgs e) {
+    private void LobbyManager_OnJoinedLobby(object sender, LobbyManager.LobbyEventArgs e) {
         Hide();
     }
 
-    private void LobbyManager_OnLobbyListChanged(object sender, LobbyManager2.OnLobbyListChangedEventArgs e) {
+    private void LobbyManager_OnLobbyListChanged(object sender, LobbyManager.OnLobbyListChangedEventArgs e) {
         UpdateLobbyList(e.lobbyList);
     }
 
@@ -71,7 +71,7 @@ public class LobbyListUI2 : MonoBehaviour {
             Transform lobbyTempleteTransform = Instantiate(lobbySingleTemplate, lobbyListContainer);
             lobbyTempleteTransform.localPosition = new Vector2(0, lobbyListStartY - lobbyListOffsetY * i);
             lobbyTempleteTransform.gameObject.SetActive(true);
-            LobbyListSingleUI2 lobbyListSingleUI = lobbyTempleteTransform.GetComponent<LobbyListSingleUI2>();
+            LobbyListSingleUI lobbyListSingleUI = lobbyTempleteTransform.GetComponent<LobbyListSingleUI>();
             lobbyListSingleUI.UpdateLobby(lobby);
             i++;
         }
@@ -79,7 +79,7 @@ public class LobbyListUI2 : MonoBehaviour {
 
     private void CreateLobbyBtnClicked() 
     {
-        LobbyCreateUI2.Instance.Show();
+        LobbyCreateUI.Instance.Show();
     }
 
     private void Hide() 

@@ -6,10 +6,10 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LobbyUI2 : MonoBehaviour {
+public class LobbyUI : MonoBehaviour {
 
 
-    public static LobbyUI2 Instance { get; private set; }
+    public static LobbyUI Instance { get; private set; }
 
 
     [SerializeField] Transform playerSingleTemplate;
@@ -32,17 +32,17 @@ public class LobbyUI2 : MonoBehaviour {
 
         leaveLobbyButton.onClick.AddListener(() => 
         {
-            LobbyManager2.Instance.LeaveLobby();
+            LobbyManager.Instance.LeaveLobby();
         });
     }
 
     private void Start() 
     {
-        LobbyManager2.Instance.OnJoinedLobby += UpdateLobby_Event;
-        LobbyManager2.Instance.OnJoinedLobbyUpdate += UpdateLobby_Event;
-        LobbyManager2.Instance.OnLobbyGameModeChanged += UpdateLobby_Event;
-        LobbyManager2.Instance.OnLeftLobby += LobbyManager_OnLeftLobby;
-        LobbyManager2.Instance.OnKickedFromLobby += LobbyManager_OnLeftLobby;
+        LobbyManager.Instance.OnJoinedLobby += UpdateLobby_Event;
+        LobbyManager.Instance.OnJoinedLobbyUpdate += UpdateLobby_Event;
+        LobbyManager.Instance.OnLobbyGameModeChanged += UpdateLobby_Event;
+        LobbyManager.Instance.OnLeftLobby += LobbyManager_OnLeftLobby;
+        LobbyManager.Instance.OnKickedFromLobby += LobbyManager_OnLeftLobby;
 
         Hide();
     }
@@ -53,14 +53,14 @@ public class LobbyUI2 : MonoBehaviour {
         Hide();
     }
 
-    private void UpdateLobby_Event(object sender, LobbyManager2.LobbyEventArgs e) 
+    private void UpdateLobby_Event(object sender, LobbyManager.LobbyEventArgs e) 
     {
         UpdateLobby();
     }
 
     private void UpdateLobby() 
     {
-        UpdateLobby(LobbyManager2.Instance.GetJoinedLobby());
+        UpdateLobby(LobbyManager.Instance.GetJoinedLobby());
     }
 
     private void UpdateLobby(Lobby lobby) 
@@ -73,20 +73,20 @@ public class LobbyUI2 : MonoBehaviour {
             Transform playerSingleTransform = Instantiate(playerSingleTemplate, container);
             playerSingleTransform.localPosition = new Vector2(0, playerListStartY - playerListOffsetY * i);
             playerSingleTransform.gameObject.SetActive(true);
-            LobbyPlayerSingleUI2 lobbyPlayerSingleUI2 = playerSingleTransform.GetComponent<LobbyPlayerSingleUI2>();
+            LobbyPlayerSingleUI lobbyPlayerSingleUI = playerSingleTransform.GetComponent<LobbyPlayerSingleUI>();
             
-            lobbyPlayerSingleUI2.SetKickPlayerButtonVisible(
-                LobbyManager2.Instance.IsLobbyHost() &&
+            lobbyPlayerSingleUI.SetKickPlayerButtonVisible(
+                LobbyManager.Instance.IsLobbyHost() &&
                 player.Id != AuthenticationService.Instance.PlayerId // Don't allow kick self
             );
 
-            lobbyPlayerSingleUI2.UpdatePlayer(player);
+            lobbyPlayerSingleUI.UpdatePlayer(player);
             i++;
         }
 
         lobbyNameText.text = lobby.Name;
         playerCountText.text = lobby.Players.Count + "/" + lobby.MaxPlayers;
-        gameModeText.text = lobby.Data[LobbyManager2.KEY_GAME_MODE].Value;
+        gameModeText.text = lobby.Data[LobbyManager.KEY_GAME_MODE].Value;
         lobbyCodeText.text = "Lobby Code: " + lobby.LobbyCode;
 
         Show();

@@ -4,10 +4,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LobbyCreateUI2 : MonoBehaviour {
+public class LobbyCreateUI : MonoBehaviour {
 
 
-    public static LobbyCreateUI2 Instance { get; private set; }
+    public static LobbyCreateUI Instance { get; private set; }
 
     [SerializeField] Button backBtn;
     [SerializeField] Button createBtn;
@@ -23,7 +23,7 @@ public class LobbyCreateUI2 : MonoBehaviour {
     string lobbyName;
     bool isPrivate;
     int maxPlayers;
-    LobbyManager2.GameMode gameMode;
+    LobbyManager.GameMode gameMode;
 
     private void Awake() {
         Instance = this;
@@ -32,7 +32,7 @@ public class LobbyCreateUI2 : MonoBehaviour {
 
         createBtn.onClick.AddListener(() => 
         {
-            LobbyManager2.Instance.CreateLobby(lobbyName, maxPlayers, gameMode, isPrivate);
+            LobbyManager.Instance.CreateLobby(lobbyName, maxPlayers, gameMode, isPrivate);
             Hide();
         });
 
@@ -83,11 +83,11 @@ public class LobbyCreateUI2 : MonoBehaviour {
             switch (gameMode) 
             {
                 default:
-                case LobbyManager2.GameMode.DeathMatch:
-                    gameMode = LobbyManager2.GameMode.TeamDeathMatch;
+                case LobbyManager.GameMode.DeathMatch:
+                    gameMode = LobbyManager.GameMode.TeamDeathMatch;
                     break;
-                case LobbyManager2.GameMode.TeamDeathMatch:
-                    gameMode = LobbyManager2.GameMode.DeathMatch;
+                case LobbyManager.GameMode.TeamDeathMatch:
+                    gameMode = LobbyManager.GameMode.DeathMatch;
                     break;
             }
             UpdateText();
@@ -117,7 +117,7 @@ public class LobbyCreateUI2 : MonoBehaviour {
 
         lobbyName = "My Lobby";
         maxPlayers = 4;
-        gameMode = LobbyManager2.GameMode.TeamDeathMatch;
+        gameMode = LobbyManager.GameMode.TeamDeathMatch;
         isPrivate = false;
 
         UpdateText();

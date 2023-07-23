@@ -10,9 +10,9 @@ using TMPro;
 using System;
 using UnityEngine.SceneManagement;
 
-public class LobbyManager2 : MonoBehaviour
+public class LobbyManager : MonoBehaviour
 {
-    public static LobbyManager2 Instance { get; private set; } 
+    public static LobbyManager Instance { get; private set; } 
 
     public event EventHandler OnLeftLobby;
 
