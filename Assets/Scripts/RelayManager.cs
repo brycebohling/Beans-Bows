@@ -16,10 +16,31 @@ public class RelayManager : MonoBehaviour
 {
     public static RelayManager Instance { get; private set; }
 
+    [SerializeField] Button createRelayBtn;
+    [SerializeField] Button joinRelayBtn;
+    [SerializeField] TMP_InputField joinCodeInput;
 
     private void Awake() 
     {
         Instance = this;
+    }
+
+    private async void Start() 
+    {
+        await UnityServices.InitializeAsync();
+
+        AuthenticationService.Instance.ClearSessionToken();
+
+        AuthenticationService.Instance.SignedIn += () => {
+            Debug.Log("Sign in " + AuthenticationService.Instance.PlayerId);
+        };
+
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+
+        
+        createRelayBtn.onClick.AddListener(() => CreateRelay());
+        joinRelayBtn.onClick.AddListener(() => JoinRelay(joinCodeInput.text));
     }
 
     public async Task<string> CreateRelay() 
@@ -41,6 +62,7 @@ public class RelayManager : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
 
+            Debug.Log("Join Code: " + joinCode);
             return joinCode;
 
         } catch (RelayServiceException e)

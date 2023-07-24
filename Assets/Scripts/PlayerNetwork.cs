@@ -6,10 +6,6 @@ using Unity.Netcode;
 
 public class PlayerNetwork : NetworkBehaviour
 {
-    [SerializeField] Transform spawnedObjPrefab;
-    Transform spawnedObjTransform;
-
-
     private NetworkVariable<MyCostomData> randomNumber = new NetworkVariable<MyCostomData>(
         new MyCostomData {
             _int = 56,
@@ -42,8 +38,6 @@ public class PlayerNetwork : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.T))
         {
             // TestClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new List<ulong> {1} } });
-            spawnedObjTransform = Instantiate(spawnedObjPrefab);
-            spawnedObjTransform.GetComponent<NetworkObject>().Spawn(true);
             // randomNumber.Value = new MyCostomData {
             //     _int = 10,
             //     _bool = false,
@@ -51,21 +45,11 @@ public class PlayerNetwork : NetworkBehaviour
             // };
         }
 
-        if (Input.GetKeyDown(KeyCode.Y) && spawnedObjTransform != null)
-        {
+        // if (Input.GetKeyDown(KeyCode.Y) && spawnedObjTransform != null)
+        // {
             // spawnedObjTransform.GetComponent<NetworkObject>().Despawn(true);
-            Destroy(spawnedObjTransform.gameObject);
-        }
-
-        Vector3 moveDir = new Vector3(0,0,0);
-
-        if (Input.GetKey(KeyCode.W)) moveDir.z = +1f;
-        if (Input.GetKey(KeyCode.S)) moveDir.z = -1f;
-        if (Input.GetKey(KeyCode.A)) moveDir.x = -1f;
-        if (Input.GetKey(KeyCode.D)) moveDir.x = +1f;
-
-        float moveSpeed = 3f;
-        transform.position += moveDir * moveSpeed * Time.deltaTime;        
+        //     Destroy(spawnedObjTransform.gameObject);
+        // }   
     }
 
     [ServerRpc()]
@@ -75,8 +59,8 @@ public class PlayerNetwork : NetworkBehaviour
     }
     
     [ClientRpc()]
-    private void TestClientRpc(ClientRpcParams _clientRpcParams)
+    private void TestClientRpc(ClientRpcParams clientRpcParams)
     {
-        Debug.Log("Test server RPC" + _clientRpcParams);
+        Debug.Log("Test server RPC" + clientRpcParams);
     }
 }

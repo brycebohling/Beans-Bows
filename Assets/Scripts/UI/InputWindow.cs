@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 public class InputWindow : MonoBehaviour
 {
     private static InputWindow instance;
-
+    
     private Button submitBtn;
     private Button cancelBtn;
     private TextMeshProUGUI titleText;
@@ -24,16 +24,6 @@ public class InputWindow : MonoBehaviour
         inputField = transform.Find("Input").GetComponent<TMP_InputField>();
 
         Hide();
-    }
-
-    private void Update() 
-    {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) {
-            // submitBtn.ClickFunc();
-        }
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            // cancelBtn.ClickFunc();
-        }    
     }
 
     private void Show(string titleString, string inputString, string validCharacters, int characterLimit, Action onCancel, Action<string> onSubmit)
