@@ -150,8 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbf1a28d7c8fb4bf3a267d73a19f6701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensitivity: 500
-  body: {fileID: 5336238427788440153}
+  sensitivity: 4.5
   yRotationLimit: 90
 --- !u!1 &2593270635479056808
 GameObject:
@@ -410,7 +409,6 @@ GameObject:
   - component: {fileID: 5336238427788440153}
   - component: {fileID: 327538390396784426}
   - component: {fileID: -355959675825354307}
-  - component: {fileID: -7499987484587118350}
   - component: {fileID: 3321626180577257163}
   - component: {fileID: -7463655386057653567}
   - component: {fileID: -4098859393230118283}
@@ -471,28 +469,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 10
+  jumpForce: 7
   groundCheckTransform: {fileID: 8604918822457775076}
   groundCheckSize: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  gravityScale: 70
+  gravityScale: 20
   arrowTransform: {fileID: 8108896063261484298, guid: 161f6d8bdc713417ab31161da01c52d8,
     type: 3}
   arrowSpawnPoint: {fileID: 595318272434085658}
---- !u!114 &-7499987484587118350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5535735051770038802}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be507fc0d98b84cb49e0a7a2d0b9aa50, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3321626180577257163
 MonoBehaviour:
   m_ObjectHideFlags: 0

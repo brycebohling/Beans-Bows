@@ -4,23 +4,22 @@ using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
 {
-    [SerializeField] float sensitivity;
-	// [SerializeField] Transform playerTransform;
-	[Range(0f, 90f)][SerializeField] float yRotationLimit = 90f;
+    [Range(0.1f, 9f)][SerializeField] float sensitivity = 2f;
+	[Range(0f, 90f)][SerializeField] float yRotationLimit = 88f;
 
-	float xRot;
-	float mouseX;
-	float mouseY;
+	Vector2 rotation = Vector2.zero;
+	const string xAxis = "Mouse X";
+	const string yAxis = "Mouse Y";
 
 	private void Update()
-	{
-		mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
-		mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+    {
+		rotation.x += Input.GetAxis(xAxis) * sensitivity;
+		rotation.y += Input.GetAxis(yAxis) * sensitivity;
+		rotation.y = Mathf.Clamp(rotation.y, -yRotationLimit, yRotationLimit);
+		Quaternion xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
+		Quaternion yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
 
-		xRot -= mouseY;
-		xRot = Mathf.Clamp(xRot, -yRotationLimit, yRotationLimit);
-
-        transform.localRotation = Quaternion.Euler(new Vector3(xRot, 0, 0));
-		PlayerC.Instance.transform.Rotate(new Vector3(0, mouseX, 0));
+		transform.localRotation = yQuat;
+        PlayerC.Instance.transform.localRotation = xQuat;
 	}
 }

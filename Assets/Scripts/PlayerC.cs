@@ -58,7 +58,7 @@ public class PlayerC : NetworkBehaviour
         move = new Vector3(Input.GetAxisRaw("Horizontal") * moveSpeed, 0, Input.GetAxisRaw("Vertical") * moveSpeed);
         
         move = transform.forward * move.z + transform.right * move.x;
-        
+
         move.y = rb.velocity.y + gravityValue * gravityScale * Time.deltaTime;
     }
 
