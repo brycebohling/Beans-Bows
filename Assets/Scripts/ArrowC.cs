@@ -1,20 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class ArrowC : MonoBehaviour
+public class ArrowC : NetworkBehaviour
 {
-    [SerializeField] float speed;
     [SerializeField] float dmg;    
     // [SerializeField] float groundLayerNum;
     Rigidbody rb;
-    
 
-
-    void Start()
+    public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody>();
-        rb.velocity = transform.right * speed;
+
+        rb.useGravity = false;
+    }
+
+    public void ShootArrow(float arrowForce)
+    {
+        rb.useGravity = true;
+
+        rb.AddForce(PlayerCamera.Instance.transform.forward * arrowForce, ForceMode.Impulse);
     }
 
     private void OnTriggerEnter3D(Collider collision) 

@@ -20,9 +20,28 @@ public class PlayerC : NetworkBehaviour
     float gravityValue = -9.81f;
     [SerializeField] float gravityScale;
 
+    // Bow
+    [SerializeField] Transform bowHolder;
+    [SerializeField] Transform bow;
+    [SerializeField] Transform stringBackPos;
+    Animator bowAnim;
+    const string BOW_RELEASE = "Release";
+    const string BOW_DRAW_BACK = "DrawBack";
+
+    float drawBackCount = 1.5f;
+    float drawBackTimer;
+
+    bool isBowDrawnBack;
+
     // Arrow
-    [SerializeField] Transform arrowTransform;
+    [SerializeField] Transform arrowPrefab;
     [SerializeField] Transform arrowSpawnPoint;
+    Transform currentArrow;
+
+    float arrowTimeElapsed;
+    float arrowLerpDuration;
+
+    float arrowSpeed = 20f;
 
     
     
@@ -35,6 +54,11 @@ public class PlayerC : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
 
         rb = GetComponent<Rigidbody>();
+
+        bowAnim = bow.GetComponent<Animator>();
+
+        // AnimationClip[] clips = bowAnim.runtimeAnimatorController.animationClips;
+        // arrowLerpDuration = clips[BOW_DRAW_BACK].length;
     }
 
     void Update()
@@ -45,11 +69,13 @@ public class PlayerC : NetworkBehaviour
 
         HandleHorizontalMovement();
         HandleJump();
-        HandleArrow();
+        HandleBow();
     }
 
     private void FixedUpdate() 
-    {
+    {   
+        if (!IsOwner) return;
+
         rb.velocity = move;
     }
 
@@ -75,21 +101,72 @@ public class PlayerC : NetworkBehaviour
         return Physics.CheckSphere(groundCheckTransform.position, groundCheckSize, groundLayer);
     }
 
-    private void HandleArrow()
-    {
-        if (Input.GetMouseButtonDown(1))
+    private void HandleBow()
+    {   
+        if (Input.GetKeyUp(KeyCode.Mouse0))
         {
-            ShootArrowServerRpc();
+            float arrowForce = drawBackTimer / drawBackCount * arrowSpeed;
+
+            FireArrow(arrowForce);
+
+            isBowDrawnBack = false;
+            arrowTimeElapsed = 0;
+
+            bowAnim.Play(BOW_RELEASE);
+        }
+
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            drawBackTimer += Time.deltaTime;
+
+            if (drawBackTimer > drawBackCount)
+            {
+                drawBackTimer = drawBackCount;
+            }
+
+            if (!isBowDrawnBack)
+            {
+                SpawnArrowServerRpc();
+
+                isBowDrawnBack = true;
+
+                bowAnim.Play(BOW_DRAW_BACK);
+            } else if (arrowTimeElapsed < arrowLerpDuration)
+            {    
+                currentArrow.position = Vector3.Lerp(currentArrow.position, stringBackPos.position, arrowTimeElapsed / arrowLerpDuration);
+                arrowTimeElapsed += Time.deltaTime;   
+            }
+
+        } else
+        {
+            drawBackTimer = 0;
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void ShootArrowServerRpc()
+    private void SpawnArrowServerRpc()
     {
-        Transform arrow = Instantiate(arrowTransform, arrowSpawnPoint.position, Quaternion.identity);
-        // arrow.LookAt(transform.position, Vector3.up);
+        currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, transform.rotation, bowHolder);
+        
+        currentArrow.GetComponent<NetworkObject>().Spawn(true);
+        
+        // clinentRpc
+    }
 
-        arrow.GetComponent<NetworkObject>().Spawn(true);
+    private void FireArrow(float arrowForce)
+    {
+        currentArrow.GetComponent<ArrowC>().ShootArrow(arrowForce);
+    }
+
+    private bool IsAnimationPlaying(Animator animator, string stateName)
+    {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName(stateName) && animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
     private void OnDrawGizmos() 
