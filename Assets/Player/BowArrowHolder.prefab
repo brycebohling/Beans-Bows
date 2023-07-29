@@ -511,6 +511,37 @@ Transform:
   m_Father: {fileID: 7931228689048466628}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: -16.944334, y: -0.014475145, z: -0.015713044}
+--- !u!1 &2575315354124106425
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4022032699416092253}
+  m_Layer: 0
+  m_Name: ArrowSpawnPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4022032699416092253
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2575315354124106425}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.22}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4358309157073305749}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2678030812412252087
 GameObject:
   m_ObjectHideFlags: 0
@@ -758,8 +789,9 @@ Transform:
   m_Children:
   - {fileID: 4194716378031453004}
   - {fileID: 5446453463873454587}
+  - {fileID: 4022032699416092253}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-6493499756151194038
 MonoBehaviour:

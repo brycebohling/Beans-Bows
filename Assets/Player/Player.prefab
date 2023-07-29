@@ -349,37 +349,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &3323343339334836178
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 595318272434085658}
-  m_Layer: 0
-  m_Name: ArrowSpawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &595318272434085658
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3323343339334836178}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: -0.145, z: 0.68}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5668423587378730077}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3684729012511447184
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,7 +380,6 @@ Transform:
   m_Children:
   - {fileID: 3501421683362213015}
   - {fileID: 2072515856360226762}
-  - {fileID: 595318272434085658}
   m_Father: {fileID: 5336238427788440153}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -429,8 +397,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vCam: {fileID: 5969772863286260848}
   audioListener: {fileID: 5214639846070276551}
-  bowHolder: {fileID: 0}
-  arrowHolder: {fileID: 0}
   sensitivity: 4.5
   yRotationLimit: 90
 --- !u!1 &4415656222047776509
@@ -673,7 +639,7 @@ Transform:
   - {fileID: 8604918822457775076}
   - {fileID: 254744744468100208}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &327538390396784426
 MonoBehaviour:
@@ -718,10 +684,9 @@ MonoBehaviour:
   bowArrowHolderPrefab: {fileID: 4358309157073305749, guid: dd740bccb3e3e448b8df859c3c416043,
     type: 3}
   bowArrowSpawnPos: {x: 0.5, y: 0.35, z: 0.95}
-  stringBackPos: {fileID: 0}
+  bowArrowHolder: {fileID: 0}
   arrowPrefab: {fileID: 255305041576185384, guid: 242c0359ba96c4704b3d34ade6597451,
     type: 3}
-  arrowSpawnPoint: {fileID: 595318272434085658}
 --- !u!114 &3321626180577257163
 MonoBehaviour:
   m_ObjectHideFlags: 0

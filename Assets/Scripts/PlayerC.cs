@@ -40,7 +40,7 @@ public class PlayerC : NetworkBehaviour
 
     [Header("Arrow")]
     [SerializeField] Transform arrowPrefab;
-    [SerializeField] Transform arrowSpawnPoint;
+    Transform arrowSpawnPos;
     Transform currentArrow;
     bool isArrowLerping;
     float arrowTimeElapsed;
@@ -61,6 +61,7 @@ public class PlayerC : NetworkBehaviour
         bow = bowArrowHolder.Find("Bow").GetComponent<Transform>();
         stringBackPos = bowArrowHolder.Find("StringBackPos").GetComponent<Transform>();
         bowAnim = bow.GetComponent<Animator>();
+        arrowSpawnPos = bowArrowHolder.Find("ArrowSpawnPos").GetComponent<Transform>();
     }
 
     void Update()
@@ -87,7 +88,7 @@ public class PlayerC : NetworkBehaviour
 
         if (isArrowLerping)
         {
-            currentArrow.position = Vector3.Lerp(arrowSpawnPoint.position, stringBackPos.position, arrowTimeElapsed / arrowLerpDuration);
+            currentArrow.position = Vector3.Lerp(arrowSpawnPos.position, stringBackPos.position, arrowTimeElapsed / arrowLerpDuration);
             arrowTimeElapsed += Time.deltaTime;
 
             if (arrowTimeElapsed >= arrowLerpDuration)
@@ -174,7 +175,7 @@ public class PlayerC : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SpawnArrowServerRpc()
     {
-        currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, Quaternion.identity);        
+        currentArrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);        
         currentArrow.GetComponent<NetworkObject>().Spawn(true);
 
         SetParentClientRpc(new SerializeTransform {someTransform = currentArrow}, new SerializeTransform {someTransform = bowArrowHolder});
