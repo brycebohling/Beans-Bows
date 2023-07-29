@@ -9,7 +9,7 @@ public class PlayerC : NetworkBehaviour
 
     Rigidbody rb;
 
-    // Movement
+    [Header("Movement")]
     Vector3 move;
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpForce;
@@ -20,50 +20,57 @@ public class PlayerC : NetworkBehaviour
     float gravityValue = -9.81f;
     [SerializeField] float gravityScale;
 
-    // Bow
-    [SerializeField] Transform bowHolder;
-    [SerializeField] Transform bow;
-    [SerializeField] Transform stringBackPos;
+    [Header("Bow")]
+    [SerializeField] Transform bowArrowHolderPrefab;
+    [SerializeField] Vector3 bowArrowSpawnPos;
+    public Transform bowArrowHolder;
+    Transform bow;
+    Transform stringBackPos;
     Animator bowAnim;
     const string BOW_RELEASE = "Release";
     const string BOW_DRAW_BACK = "DrawBack";
+    float drawBackTime = 1.5f;
+    float drawBackElaped;
+    bool isBowDrawingBack;
 
-    float drawBackCount = 1.5f;
-    float drawBackTimer;
+    public struct SerializeTransform : INetworkSerializeByMemcpy
+    {
+        public Transform someTransform;
+    }
 
-    bool isBowDrawnBack;
-
-    // Arrow
+    [Header("Arrow")]
     [SerializeField] Transform arrowPrefab;
     [SerializeField] Transform arrowSpawnPoint;
     Transform currentArrow;
-
+    bool isArrowLerping;
     float arrowTimeElapsed;
     float arrowLerpDuration;
-
     float arrowSpeed = 20f;
 
-    
     
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
 
         Instance = this;
-
         Cursor.lockState = CursorLockMode.Locked;
-
         rb = GetComponent<Rigidbody>();
 
+        SpawnBowArrowServerRpc();
+        SetParentServerRpc(new SerializeTransform {someTransform = bowArrowHolder}, new SerializeTransform {someTransform = transform});
+        bow = bowArrowHolder.Find("Bow").GetComponent<Transform>();
+        stringBackPos = bowArrowHolder.Find("StringBackPos").GetComponent<Transform>();
         bowAnim = bow.GetComponent<Animator>();
-
-        // AnimationClip[] clips = bowAnim.runtimeAnimatorController.animationClips;
-        // arrowLerpDuration = clips[BOW_DRAW_BACK].length;
     }
 
     void Update()
     {
         if (!IsOwner) return;
+
+        if (currentArrow != null)
+        {
+            currentArrow.localRotation = Quaternion.identity;
+        }
 
         isGrounded = IsGrounded();
 
@@ -77,6 +84,25 @@ public class PlayerC : NetworkBehaviour
         if (!IsOwner) return;
 
         rb.velocity = move;
+
+        if (isArrowLerping)
+        {
+            currentArrow.position = Vector3.Lerp(arrowSpawnPoint.position, stringBackPos.position, arrowTimeElapsed / arrowLerpDuration);
+            arrowTimeElapsed += Time.deltaTime;
+
+            if (arrowTimeElapsed >= arrowLerpDuration)
+            {
+                isArrowLerping = false;
+                currentArrow.position = stringBackPos.position;
+            }
+        }
+    }
+
+    [ServerRpc]
+    private void SpawnBowArrowServerRpc()
+    {
+        bowArrowHolder = Instantiate(bowArrowHolderPrefab, bowArrowSpawnPos, Quaternion.identity);
+        bowArrowHolder.GetComponent<NetworkObject>().Spawn(true);
     }
 
     private void HandleHorizontalMovement()
@@ -105,11 +131,12 @@ public class PlayerC : NetworkBehaviour
     {   
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
-            float arrowForce = drawBackTimer / drawBackCount * arrowSpeed;
+            float arrowForce = drawBackElaped / drawBackTime * arrowSpeed;
 
             FireArrow(arrowForce);
 
-            isBowDrawnBack = false;
+            isBowDrawingBack = false;
+            isArrowLerping = false;
             arrowTimeElapsed = 0;
 
             bowAnim.Play(BOW_RELEASE);
@@ -117,45 +144,70 @@ public class PlayerC : NetworkBehaviour
 
         if (Input.GetKey(KeyCode.Mouse0))
         {
-            drawBackTimer += Time.deltaTime;
+            drawBackElaped += Time.deltaTime;
 
-            if (drawBackTimer > drawBackCount)
+            if (drawBackElaped > drawBackTime)
             {
-                drawBackTimer = drawBackCount;
+                drawBackElaped = drawBackTime;
             }
 
-            if (!isBowDrawnBack)
+            if (!isBowDrawingBack)
             {
                 SpawnArrowServerRpc();
 
-                isBowDrawnBack = true;
+                isBowDrawingBack = true;
 
                 bowAnim.Play(BOW_DRAW_BACK);
-            } else if (arrowTimeElapsed < arrowLerpDuration)
-            {    
-                currentArrow.position = Vector3.Lerp(currentArrow.position, stringBackPos.position, arrowTimeElapsed / arrowLerpDuration);
-                arrowTimeElapsed += Time.deltaTime;   
+
+            } else if (!isArrowLerping)
+            {
+                isArrowLerping = true;
+                arrowLerpDuration = bowAnim.GetCurrentAnimatorStateInfo(0).length;
             }
 
         } else
         {
-            drawBackTimer = 0;
+            drawBackElaped = 0;
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void SpawnArrowServerRpc()
     {
-        currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, transform.rotation, bowHolder);
-        
+        currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, Quaternion.identity);        
         currentArrow.GetComponent<NetworkObject>().Spawn(true);
-        
-        // clinentRpc
+
+        SetParentClientRpc(new SerializeTransform {someTransform = currentArrow}, new SerializeTransform {someTransform = bowArrowHolder});
     }
 
     private void FireArrow(float arrowForce)
     {
         currentArrow.GetComponent<ArrowC>().ShootArrow(arrowForce);
+        RemoveParentServerRpc(new SerializeTransform {someTransform = currentArrow});
+    }
+
+    [ServerRpc(RequireOwnership =  false)]
+    private void SetParentServerRpc(SerializeTransform objectTransform, SerializeTransform wantedParent)
+    {
+        SetParentClientRpc(objectTransform, wantedParent);
+    }
+
+    [ClientRpc]
+    private void SetParentClientRpc(SerializeTransform objectTransform, SerializeTransform wantedParent)
+    {
+        objectTransform.someTransform.GetComponent<NetworkObject>().TrySetParent(wantedParent.someTransform);  
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RemoveParentServerRpc(SerializeTransform objectTransform)
+    {
+        RemoveParentClientRpc(objectTransform);
+    }
+
+    [ClientRpc]
+    private void RemoveParentClientRpc(SerializeTransform objectTransform)
+    {
+        objectTransform.someTransform.GetComponent<NetworkObject>().TryRemoveParent();
     }
 
     private bool IsAnimationPlaying(Animator animator, string stateName)

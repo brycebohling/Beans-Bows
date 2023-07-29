@@ -11,6 +11,8 @@ public class PlayerCamera : NetworkBehaviour
     [SerializeField] CinemachineVirtualCamera vCam;
     [SerializeField] AudioListener audioListener;
 
+    Transform bowArrowHolder;
+
     [Range(0.1f, 9f)][SerializeField] float sensitivity = 2f;
 	[Range(0f, 90f)][SerializeField] float yRotationLimit = 88f;
 
@@ -31,7 +33,7 @@ public class PlayerCamera : NetworkBehaviour
         {
             vCam.Priority = 0;
         }
-    }    
+    }
 
 	private void Update()
     {
@@ -44,6 +46,7 @@ public class PlayerCamera : NetworkBehaviour
 		Quaternion yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
 
 		transform.localRotation = yQuat;
-        PlayerC.Instance.transform.localRotation = xQuat;
+        PlayerC.Instance.bowArrowHolder.localRotation = yQuat;
+        PlayerC.Instance.transform.rotation = xQuat;
 	}
 }

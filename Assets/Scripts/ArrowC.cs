@@ -23,6 +23,11 @@ public class ArrowC : NetworkBehaviour
         rb.AddForce(PlayerCamera.Instance.transform.forward * arrowForce, ForceMode.Impulse);
     }
 
+    private void Update()
+    {
+        transform.LookAt(transform.position + rb.velocity);
+    }
+
     private void OnTriggerEnter3D(Collider collision) 
     {
         // if (collision.gameObject.CompareTag("Player") && !GameManager.gameManager.isPLayerInvicible)
