@@ -46,7 +46,12 @@ public class PlayerCamera : NetworkBehaviour
 		Quaternion yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
 
 		transform.localRotation = yQuat;
-        PlayerC.Instance.bowArrowHolder.localRotation = yQuat;
+        
+        if (PlayerC.Instance.bowArrowHolder != null)
+        {
+            PlayerC.Instance.bowArrowHolder.localRotation = yQuat;
+        }
+        
         PlayerC.Instance.transform.rotation = xQuat;
 	}
 }

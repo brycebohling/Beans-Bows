@@ -56,7 +56,7 @@ public class PlayerC : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
 
-        SpawnBowArrowServerRpc();
+        SpawnBowArrow();
         SetParentServerRpc(new SerializeTransform {someTransform = bowArrowHolder}, new SerializeTransform {someTransform = transform});
         bow = bowArrowHolder.Find("Bow").GetComponent<Transform>();
         stringBackPos = bowArrowHolder.Find("StringBackPos").GetComponent<Transform>();
@@ -99,10 +99,16 @@ public class PlayerC : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
-    private void SpawnBowArrowServerRpc()
+    private void SpawnBowArrow()
     {
         bowArrowHolder = Instantiate(bowArrowHolderPrefab, bowArrowSpawnPos, Quaternion.identity);
+        SpawnBowArrowServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SpawnBowArrowServerRpc()
+    {
+        // bowArrowHolder = Instantiate(bowArrowHolderPrefab, bowArrowSpawnPos, Quaternion.identity);
         bowArrowHolder.GetComponent<NetworkObject>().Spawn(true);
     }
 
@@ -154,7 +160,7 @@ public class PlayerC : NetworkBehaviour
 
             if (!isBowDrawingBack)
             {
-                SpawnArrowServerRpc();
+                SpawnArrow();
 
                 isBowDrawingBack = true;
 
@@ -172,12 +178,17 @@ public class PlayerC : NetworkBehaviour
         }
     }
 
+    private void SpawnArrow()
+    {
+        currentArrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);
+        SpawnArrowServerRpc();
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void SpawnArrowServerRpc()
     {
-        currentArrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);        
+        // currentArrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);
         currentArrow.GetComponent<NetworkObject>().Spawn(true);
-
         SetParentClientRpc(new SerializeTransform {someTransform = currentArrow}, new SerializeTransform {someTransform = bowArrowHolder});
     }
 
