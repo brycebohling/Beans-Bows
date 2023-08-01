@@ -16,10 +16,12 @@ public class ArrowC : NetworkBehaviour
 
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
+        Debug.Log(OwnerClientId);
     }
 
     public void ShootArrow(float arrowForce)
     {
+        Debug.Log(OwnerClientId);
         rb.useGravity = true;
         rb.AddForce(PlayerCamera.Instance.transform.forward * arrowForce, ForceMode.Impulse);
     }
@@ -27,6 +29,7 @@ public class ArrowC : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner) return;
+        Debug.Log(OwnerClientId);
         transform.LookAt(transform.position + rb.velocity);
     }
 
@@ -37,19 +40,19 @@ public class ArrowC : NetworkBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("hit player");
-            DestroyArrowServerRpc();
+            // DestroyArrowServerRpc();
         } else if (collision.gameObject.layer == collisionLayerNum)
         {
-            DestroyArrowServerRpc();
+            // DestroyArrowServerRpc();
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void DestroyArrowServerRpc()
-    {
-        gameObject.GetComponent<NetworkObject>().Despawn(true);
-        Destroy(gameObject);
-    }
+    // [ServerRpc(RequireOwnership = false)]
+    // private void DestroyArrowServerRpc()
+    // {
+    //     gameObject.GetComponent<NetworkObject>().Despawn(true);
+    //     Destroy(gameObject);
+    // }
 
     
 }

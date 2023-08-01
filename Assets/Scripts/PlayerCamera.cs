@@ -47,9 +47,9 @@ public class PlayerCamera : NetworkBehaviour
 
 		transform.localRotation = yQuat;
         
-        if (PlayerC.Instance.bowArrowHolder != null)
+        if (PlayerC.Instance.BowArrowHolder != null)
         {
-            PlayerC.Instance.bowArrowHolder.localRotation = yQuat;
+            PlayerC.Instance.BowArrowHolder.localRotation = yQuat;
         }
         
         PlayerC.Instance.transform.rotation = xQuat;
