@@ -20,6 +20,7 @@ public class PlayerCamera : NetworkBehaviour
 	const string xAxis = "Mouse X";
 	const string yAxis = "Mouse Y";
 
+
     public override void OnNetworkSpawn()
     {
         if (IsOwner)

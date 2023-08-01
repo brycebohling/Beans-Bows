@@ -67,11 +67,6 @@ public class PlayerC : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        if (currentArrow != null)
-        {
-            currentArrow.localRotation = Quaternion.identity;
-        }
-
         isGrounded = IsGrounded();
 
         HandleHorizontalMovement();
@@ -84,31 +79,7 @@ public class PlayerC : NetworkBehaviour
         if (!IsOwner) return;
 
         rb.velocity = move;
-
-        if (isArrowLerping)
-        {
-            currentArrow.position = Vector3.Lerp(arrowSpawnPos.position, stringBackPos.position, arrowTimeElapsed / arrowLerpDuration);
-            arrowTimeElapsed += Time.deltaTime;
-
-            if (arrowTimeElapsed >= arrowLerpDuration)
-            {
-                isArrowLerping = false;
-                currentArrow.position = stringBackPos.position;
-            }
-        }
     }
-
-    // private void SpawnBowArrow()
-    // {
-    //     bowArrowHolder = Instantiate(bowArrowHolderPrefab, bowArrowSpawnPos, Quaternion.identity);
-    //     SpawnBowArrowServerRpc();
-    // }
-
-    // [ServerRpc(RequireOwnership = false)]
-    // private void SpawnBowArrowServerRpc()
-    // {
-    //     bowArrowHolderSenderTransform.someTransform.GetComponent<NetworkObject>()
-    // }
 
     private void HandleHorizontalMovement()
     {
@@ -158,7 +129,7 @@ public class PlayerC : NetworkBehaviour
 
             if (!isBowDrawingBack)
             {
-                SpawnArrow();
+                SpawnArrow(this);
 
                 isBowDrawingBack = true;
 
@@ -176,62 +147,46 @@ public class PlayerC : NetworkBehaviour
         }
     }
 
-    private void SpawnArrow()
+    private void SpawnArrow(PlayerC arrowParent)
     {
-        currentArrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);
-        SpawnArrowServerRpc();
+        SpawnArrowServerRpc(arrowParent.GetComponent<NetworkObject>());
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnArrowServerRpc(ServerRpcParams serverRpcParams = default)
-    {
-        currentArrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);
+    private void SpawnArrowServerRpc(NetworkObjectReference arrowParentNetworkObjectReference)
+    {    
+        Transform arrow = Instantiate(arrowPrefab, arrowSpawnPos.position, Quaternion.identity);
+        arrow.GetComponent<NetworkObject>().Spawn(true);
+
+        arrowParentNetworkObjectReference.TryGet(out NetworkObject arrowParentNetworkObject);
     
-        currentArrow.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
-        // currentArrow.GetComponent<NetworkObject>().ChangeOwnership(serverRpcParams.Receive.SenderClientId);
-        // SetParentClientRpc(new SerializeTransform {someTransform = currentArrow}, );
+        arrow.GetComponent<NetworkObject>().ChangeOwnership(arrowParentNetworkObject.OwnerClientId);
+
+        arrow.GetComponent<ArrowC>().SetArrowParent(this);
+
+        SetCurrentArrowReferenceClientRpc(arrow.GetComponent<NetworkObject>());
+    }
+
+    [ClientRpc]
+    private void SetCurrentArrowReferenceClientRpc(NetworkObjectReference arrowNetworkObjectReference)
+    {
+        if (!IsOwner) return;
+        
+        arrowNetworkObjectReference.TryGet(out NetworkObject arrowNetworkObject);
+        currentArrow = arrowNetworkObject.GetComponent<Transform>();
     }
 
     private void FireArrow(float arrowForce)
     {
+        if (currentArrow == null) return;
+        
         currentArrow.GetComponent<ArrowC>().ShootArrow(arrowForce);
-        // RemoveParentServerRpc(new SerializeTransform {someTransform = currentArrow});
     }
 
-    // [ServerRpc(RequireOwnership =  false)]
-    // private void SetParentServerRpc()
-    // {
-    //     SetParentClientRpc(objectTransform, wantedParent);
-    // }
-
-    // [ClientRpc]
-    // private void SetParentClientRpc()
-    // {
-    //     objectTransform.someTransform.GetComponent<NetworkObject>().TrySetParent(wantedParent.someTransform);  
-    // }
-
-    // [ServerRpc(RequireOwnership = false)]
-    // private void RemoveParentServerRpc()
-    // {
-    //     RemoveParentClientRpc(objectTransform);
-    // }
-
-    // [ClientRpc]
-    // private void RemoveParentClientRpc()
-    // {
-    //     objectTransform.someTransform.GetComponent<NetworkObject>().TryRemoveParent();
-    // }
-
-    // private bool IsAnimationPlaying(Animator animator, string stateName)
-    // {
-    //     if (animator.GetCurrentAnimatorStateInfo(0).IsName(stateName) && animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
-    //     {
-    //         return true;
-    //     } else
-    //     {
-    //         return false;
-    //     }
-    // }
+    public Transform GetArrowFollowTransform()
+    {
+        return BowArrowHolder;
+    }
 
     private void OnDrawGizmos() 
     {

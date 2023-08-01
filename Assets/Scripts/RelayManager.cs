@@ -20,6 +20,7 @@ public class RelayManager : MonoBehaviour
     [SerializeField] Button joinRelayBtn;
     [SerializeField] TMP_InputField joinCodeInput;
 
+
     private void Awake() 
     {
         Instance = this;
@@ -78,7 +79,6 @@ public class RelayManager : MonoBehaviour
     {
         try
         {
-            Debug.Log("Joining relay with " + joinCode);
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
